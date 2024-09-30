@@ -67,14 +67,6 @@ const Greeting = () => (
 * For NextJS:
     * root component _app.js and index.js start page
 
-## Styling in NextJS
-* 4 global styling create a _document.js file, because NextJS has no index.html for style links
-* Component styles, see components/banner.module.css
-    * import {logo} from "./banner.module.css"
-    * use className={logo} in JSX
-* Inline
-    * style={{color: red}} where inner braces are an object
-
 ## Props
 * All input props given from parent component go into props object param
 ```jsx
@@ -505,12 +497,6 @@ const Bids = ({ house }) => {
 ````
 
 # Working with Components React 18
-
-## Next.js Toolchain
-
-`npx create-next-app@latest` without `App Router`. `next` dependency.
-To run just exec `npm ci` and `npm run dev`.
-`next.config.js` has config settings. `index.js` is root file and App.js root component.
 
 ## Higher Order Components (HOCs)
 
@@ -1517,3 +1503,72 @@ export default function Cart() {
 * `Redux`, `Xstate` for more complex state transition logic
 * `react-query` has support for caching and syncing frontend and backend
 * `React Hook Form`, `Formik` for forms
+
+
+# NextJS 
+
+Why NextJs: Has all the latest concurrent rendering features like `Suspense`. A NodeJS server is required for server rendered components.
+
+## Next.js Toolchain
+
+`npx create-next-app@latest` without `App Router`. `next` dependency.
+To run just exec `npm ci` and `npm run dev`.
+`next.config.js` has config settings. `index.js` is root file and App.js root component.
+
+NextJS with TS has `page.tsx` as start page.
+
+If NextJS is used with SSR, then need to declare the boundary of the client side bundle using `'use client';` at the top of the root component file.
+All other modules imported into it, including child components, are considered part of the client bundle.
+
+## Styling in NextJS
+* 4 global styling create a _document.js file, because NextJS has no index.html for style links
+* Component styles, see components/banner.module.css
+    * import {logo} from "./banner.module.css"
+    * use className={logo} in JSX
+* Inline
+    * style={{color: red}} where inner braces are an object
+
+## next/server REST API
+
+Can use `next/server` to build NodeJS based REST API.
+
+````jsx
+import { NextRequest } from "next/server";
+import { createSpeakerRecord, getSpeakers } from "@/lib/prisma/speaker-utils";
+
+export async function GET(request: NextRequest) {
+  const speakers = await getSpeakers(""); // call to SQL db mapped with PRISMA ORM
+
+  return new Response(JSON.stringify(speakers, null, 2), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function POST(request: Request) {
+    try {
+        const data = await request.json();
+        delete data.id; // let the database handle assigning the id
+        delete data.favorite; // this will confuse prisma and it's virtual field
+
+        const newSpeaker = await createSpeakerRecord(data);
+
+        return new Response(JSON.stringify(newSpeaker, null, 2), {
+            status: 201,
+            headers: {
+                // CORS headers
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ message: "Error creating speaker" }), {
+            status: 500,
+        });
+    }
+}
+````

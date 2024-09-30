@@ -1,8 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function Speakers() {
-  const speakers = [
+interface Speaker {
+  id: number;
+  firstName: string;
+  lastName: string;
+  company: string;
+  twitterHandle: string;
+  userBioShort: string;
+  timeSpeaking: Date;
+}
+
+  const SPEAKERS: Speaker[] = [
     {
       id: 1124,
       firstName: "Douglas",
@@ -35,20 +44,22 @@ export default function Speakers() {
     },
   ];
 
-  const [speakerList, setSpeakerList] = useState<any>([]);
+export default function Speakers() {
+
+  const [speakerList, setSpeakerList] = useState<Speaker[]>([]);
   useEffect(() => {
     const sleep = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
     async function go() {
       await sleep(3000);
-      setSpeakerList(speakers);
+      setSpeakerList(SPEAKERS);
     }
     go();
   }, []);
 
   return (
     <ul>
-      {speakerList.map(function (speaker: any) {
+      {speakerList.map(function (speaker: Speaker) {
         return (
           <li key={speaker.id}>
             {speaker.firstName} {speaker.lastName} - {speaker.id}
