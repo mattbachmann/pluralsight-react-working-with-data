@@ -1507,7 +1507,8 @@ export default function Cart() {
 
 # NextJS 
 
-Why NextJs: Has all the latest concurrent rendering features like `Suspense`. A NodeJS server is required for server rendered components.
+Why NextJs: Has all the latest concurrent rendering features like `Suspense`. A NodeJS server is required for server rendered components. 
+Also NextAuth.js (Auth.js) offers simple JWT based authentication for NodeJS and React.
 
 ## Next.js Toolchain
 
