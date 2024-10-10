@@ -1573,3 +1573,81 @@ export async function POST(request: Request) {
     }
 }
 ````
+
+## NextJS Server Actions
+
+* Like RPC calls running on the server
+* Best put into it's own file with "use server" at the start
+* Like hooks actions have an upper case name
+* When called from client all params must be primitives!
+
+````jsx
+"use server";
+
+import prisma from "@/lib/prisma/prisma";
+import { Prisma } from "@prisma/client";
+import { randomUUID } from "node:crypto";
+
+export async function CheckEmailExistsAction(email: string): Promise<boolean> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 3000));
+  const attendee = await prisma.attendee.findUnique({ // ORM framework prisma checking DB
+    where: {
+      email: email,
+    },
+  });
+  return attendee !== null;
+}
+````
+
+Example of usage on client:
+
+````jsx
+"use client"
+import React, { ChangeEvent, useState, useTransition, useEffect } from "react";
+import { FormDataType } from "@/app/server-action-example/page";
+import { CheckEmailExistsAction } from "@/app/server-action-example/page-server-action";
+
+export default function EmailInput({
+                                       formData: { email },
+                                       onChange,
+                                   }: {
+    formData: FormDataType;
+    onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}) {
+    const [emailInDatabase, setEmailInDatabase] = useState(false);
+    const [pending, startTransition] = useTransition();
+
+    useEffect(() => {
+        setEmailInDatabase(false);
+    }, [email]);
+
+    const onBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+        const emailValue = event.target.value;
+        startTransition(async () => {
+            setEmailInDatabase(await CheckEmailExistsAction(emailValue));
+        });
+    };
+
+    return (
+        <div className="mb-3">
+            <label htmlFor="email" className="form-label">
+                Email Address
+            </label>
+            <input
+                type="email"
+                className="form-control"
+                id="email"
+                name="email"
+                value={email}
+                onChange={onChange}
+                onBlur={onBlur}
+            />
+            {emailInDatabase && (
+                <div className="text-danger">Email address exists already</div>
+            )}
+            {pending && <div className="text-info">Checking email address...</div>}
+        </div>
+    );
+}
+
+````
