@@ -1579,7 +1579,10 @@ export async function POST(request: Request) {
 * Like RPC calls running on the server
 * Best put into it's own file with "use server" at the start
 * Like hooks actions have an upper case name
-* When called from client all params must be primitives!
+* When called from client all params must be primitives
+* When called from client all params need to be validated!
+* Can call server actions from server components
+    * think of server components as GET and server actions as POST, PUT, DELETE
 
 ````jsx
 "use server";
@@ -1651,3 +1654,39 @@ export default function EmailInput({
 }
 
 ````
+
+Can also use ZOD runtime validation: 
+
+````jsx
+import { z } from "zod";
+
+const SpeakerSchema = z.object({
+  id: z.number().optional(), // needed because we sometimes pass in no id to mean this gets added
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  company: z.string().optional(),
+  twitterHandle: z.string().optional(),
+  userBioShort: z.string().optional(),
+  timeSpeaking: z.date(),
+});
+
+const sleep = (milliseconds: number) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
+export async function createSpeakerAction(speakerData: Speaker) {
+  await sleep(1000);
+
+  const validatedFields = SpeakerSchema.safeParse(speakerData);
+  if (!validatedFields.success) {
+    let errorMessage = "";
+    validatedFields.error.issues.forEach(
+      (issue) => (errorMessage += `${issue.path[0]}:${issue.message};`),
+    );
+    throw new Error(errorMessage);
+  }
+
+  return await createSpeakerRecord(speakerData);
+}
+````
+
