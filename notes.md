@@ -1690,3 +1690,28 @@ export async function createSpeakerAction(speakerData: Speaker) {
 }
 ````
 
+# Styling React Apps
+
+## UI component libraries
+
+* MUI Material based with design system
+* Radix - just UI components without design system
+
+## Architecture
+
+Different approaches: 
+
+* SMACSS
+* ITCSS
+* BEM
+
+### BEM
+
+Reusable Blocks, their elements and modifiers
+
+## CSS libraries
+
+* Bootstrap
+* Tailwind
+* Atomic CSS
+
