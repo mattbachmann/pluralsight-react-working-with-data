@@ -1715,3 +1715,13 @@ Reusable Blocks, their elements and modifiers
 * Tailwind
 * Atomic CSS
 
+# Testing React Components
+
+Best integrate testing from the beginning. 
+
+## Testing with NextJS and Jest
+
+Create a new NextJS app with Jest test framework:
+
+`npx create-next-app --example with-jest my-project`
+
